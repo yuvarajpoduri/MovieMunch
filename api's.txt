@@ -1,0 +1,201 @@
+tmdb : db530eb75fdd431140fb945e4903aeb4
+omdb : 3a38a833
+
+<?php
+include('db.php');
+
+if (isset($_GET['title'])) {
+    $movieTitle = $_GET['title'];
+    $omdbApiKey = '3a38a833';  // Replace with your OMDb API key
+    $tmdbApiKey = 'db530eb75fdd431140fb945e4903aeb4';  // Replace with your TMDb API key
+
+    // Fetch movie details from OMDb API (Poster, Title, IMDb Rating, etc.)
+    $omdbUrl = "http://www.omdbapi.com/?t=" . urlencode($movieTitle) . "&apikey=" . $omdbApiKey;
+    $omdbJson = file_get_contents($omdbUrl);
+    $movieDetails = json_decode($omdbJson, true);
+
+    // Check if movie is found in OMDb
+    if ($movieDetails['Response'] == 'True') {
+        $title = $movieDetails['Title'];
+        $imdbRating = $movieDetails['imdbRating'];
+        $plot = $movieDetails['Plot'];
+        $poster = $movieDetails['Poster']; // Get the poster image
+        $genre = $movieDetails['Genre'];
+        $rated = $movieDetails['Rated'];
+        $runtime = $movieDetails['Runtime'];
+        $releasedate = $movieDetails['Released'];
+        $language = $movieDetails['Language'];
+        $awards = $movieDetails['Awards'];
+        $movietype = $movieDetails['Type'];
+    } else {
+        echo "Movie not found.";
+        exit;
+    }
+
+    // Fetch movie ID from TMDb to get cast and crew details
+    $tmdbSearchUrl = "https://api.themoviedb.org/3/search/movie?api_key=" . $tmdbApiKey . "&query=" . urlencode($movieTitle);
+    $tmdbSearchJson = file_get_contents($tmdbSearchUrl);
+    $tmdbSearchResult = json_decode($tmdbSearchJson, true);
+
+    if (!empty($tmdbSearchResult['results'])) {
+        $tmdbMovieId = $tmdbSearchResult['results'][0]['id'];
+
+        // Fetch the cast and crew details from TMDb
+        $tmdbCastUrl = "https://api.themoviedb.org/3/movie/" . $tmdbMovieId . "/credits?api_key=" . $tmdbApiKey;
+        $tmdbCastJson = file_get_contents($tmdbCastUrl);
+        $tmdbCastResult = json_decode($tmdbCastJson, true);
+    } else {
+        echo "Movie cast not found in TMDb.";
+        exit;
+    }
+} else {
+    echo "No movie title provided.";
+    exit;
+}
+
+// Fetch comments from the database
+$commentSql = "SELECT user_name, comment, created_at FROM comments WHERE movie_title='$movieTitle' ORDER BY created_at DESC";
+$commentsResult = $conn->query($commentSql);
+
+?>
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><?php echo $title; ?> - Movie Details</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div class="landingpage">
+    <div class="movieposter">
+
+
+<!-- Display Movie Poster -->
+<?php if (!empty($poster)) { ?>
+    <img src="<?php echo $poster; ?>" alt="Movie Poster"><br>
+<?php } ?>
+</div>
+<div class="moviedetails">
+    <h1><?php echo $title; ?></h1>
+    <div class="title-info">
+        <span class="certification"><?php echo $rated; ?></span> <!-- Certification -->
+        <span class="movie-type"><?php echo ucfirst($movietype); ?></span> <!-- Movie Type -->
+    </div>
+    <p><strong>Released On:</strong> <?php echo $releasedate; ?></p>
+    <div class="genre-buttons">
+        <?php foreach (explode(", ", $genre) as $g) { ?>
+            <button class="genre-button"><?php echo htmlspecialchars($g); ?></button>
+        <?php } ?>
+    </div>
+    <p><strong>Language:</strong> <?php echo $language; ?></p>
+    <p><strong>Awards:</strong> <?php echo $awards; ?></p>
+    <p><strong>IMDb Rating:</strong> <?php echo $imdbRating; ?></p>
+    
+    <div class="plot-synopsis">
+        <strong>Plot Synopsis:</strong>
+        <p><?php echo $plot; ?></p>
+    </div>
+</div>
+
+
+</div>
+<!-- Display Cast (up to 5 members) -->
+<h2>Cast:</h2>
+<?php
+if (!empty($tmdbCastResult['cast'])) {
+    $castCount = min(5, count($tmdbCastResult['cast'])); // Get up to 5 cast members
+    for ($i = 0; $i < $castCount; $i++) {
+        $actor = $tmdbCastResult['cast'][$i];
+        echo "<p><strong>" . $actor['name'] . "</strong></p>";
+        if (!empty($actor['profile_path'])) {
+            echo "<img src='https://image.tmdb.org/t/p/w200" . $actor['profile_path'] . "' alt='" . $actor['name'] . "'><br>";
+        } else {
+            echo "<p>No image available</p>";
+        }
+    }
+} else {
+    echo "<p>No cast information available.</p>";
+}
+?>
+
+<!-- Display Crew (Director, Producer, Music Director) -->
+// Display Crew (Director, Producer, Music Director)
+<h2>Crew:</h2>
+<?php
+if (!empty($tmdbCastResult['crew'])) {
+    $director = '';
+    $directorImage = '';
+    $producer = '';
+    $producerImage = '';
+    $musicDirector = '';
+    $musicDirectorImage = '';
+
+    foreach ($tmdbCastResult['crew'] as $member) {
+        if ($member['job'] === 'Director') {
+            $director = $member['name'];
+            $directorImage = $member['profile_path']; // Get director's profile image
+        }
+        if ($member['job'] === 'Producer') {
+            $producer = $member['name'];
+            $producerImage = $member['profile_path']; // Get producer's profile image
+        }
+        // Check for music-related job titles
+        if ($member['job'] === 'Music' || $member['job'] === 'Music Supervisor' || $member['job'] === 'Original Music Composer') {
+            $musicDirector = $member['name'];
+            $musicDirectorImage = $member['profile_path']; // Get music director's profile image
+        }
+    }
+
+    // Display Director
+    echo "<p><strong>Director:</strong> " . ($director ?: "Not available") . "</p>";
+    if ($directorImage) {
+        echo "<img src='https://image.tmdb.org/t/p/w200" . $directorImage . "' alt='Director Image' style='width:100px;height:auto;'><br>";
+    } else {
+        echo "<p>No image available for director.</p>";
+    }
+
+    // Display Producer
+    echo "<p><strong>Producer:</strong> " . ($producer ?: "Not available") . "</p>";
+    if ($producerImage) {
+        echo "<img src='https://image.tmdb.org/t/p/w200" . $producerImage . "' alt='Producer Image' style='width:100px;height:auto;'><br>";
+    } else {
+        echo "<p>No image available for producer.</p>";
+    }
+
+    // Display Music Director
+    echo "<p><strong>Music Director:</strong> " . ($musicDirector ?: "Not available") . "</p>";
+    if ($musicDirectorImage) {
+        echo "<img src='https://image.tmdb.org/t/p/w200" . $musicDirectorImage . "' alt='Music Director Image' style='width:100px;height:auto;'><br>";
+    } else {
+        echo "<p>No image available for music director.</p>";
+    }
+} else {
+    echo "<p>No crew information available.</p>";
+}
+?>
+
+
+<h2>Comments:</h2>
+<?php
+if ($commentsResult->num_rows > 0) {
+    while ($row = $commentsResult->fetch_assoc()) {
+        echo "<p><strong>" . $row['user_name'] . "</strong>: " . $row['comment'] . " <i>on " . $row['created_at'] . "</i></p>";
+    }
+} else {
+    echo "<p>No comments yet. Be the first to comment!</p>";
+}
+?>
+
+<!-- Comment Form -->
+<h3>Leave a Comment:</h3>
+<form action="submit_comment.php" method="POST">
+    <input type="hidden" name="movie_title" value="<?php echo $title; ?>">
+    <input type="text" name="user_name" placeholder="Your Name" required><br>
+    <textarea name="comment" placeholder="Your Comment" required></textarea><br>
+    <input type="submit" value="Submit Comment">
+</form>
+
+</body>
+</html>

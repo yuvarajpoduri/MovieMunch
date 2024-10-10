@@ -1,0 +1,214 @@
+body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 20px;
+    background-color: #141414; /* Dark background color */
+    color: #e6e6e6; /* Light text color for readability */
+}
+
+.landingpage {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    margin-bottom: 20px;
+}
+
+.movieposter {
+    flex: 1 1 40%;
+    margin-right: 20px;
+    position: relative; /* For hover effect */
+    overflow: hidden; /* To hide overflow of images */
+}
+
+.movieposter img {
+    max-width: 100%;
+    height: auto;
+    transition: transform 0.3s ease; /* Add transition for image zoom */
+}
+
+.movieposter img:hover {
+    transform: scale(1.05); /* Zoom in effect on hover */
+}
+
+.moviedetails {
+    flex: 1 1 55%;
+}
+
+h1 {
+    font-size: 2.5em;
+    margin-bottom: 10px;
+    transition: color 0.3s ease; /* Transition for title color */
+}
+
+.title-info {
+    display: flex;
+    align-items: center;
+    margin-bottom: 15px;
+}
+
+.movie-type {
+    font-weight: bold;
+    margin-right: 20px;
+    font-size: 1.5em;
+}
+
+.genre-buttons {
+    display: flex;
+    flex-wrap: wrap;
+}
+
+.genre-button {
+    background-color: #007BFF; /* Button color */
+    color: white;
+    border: none;
+    border-radius: 5px;
+    padding: 10px 15px;
+    margin: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s, transform 0.3s; /* Add transform transition */
+}
+
+.genre-button:hover {
+    background-color: #0056b3; /* Darker blue on hover */
+    transform: scale(1.05); /* Slightly enlarge button on hover */
+}
+
+.certification {
+    display: inline-block;
+    background-color: #ffcc00; /* Bright color for certification */
+    color: #000; /* Dark text for readability */
+    border-radius: 12px; /* Rounded corners */
+    padding: 8px 12px; /* Padding for the badge */
+    font-weight: bold; /* Make the text bold */
+    margin-right: 10px; /* Margin to separate from the next item */
+}
+
+.plot-synopsis {
+    background-color: rgba(255, 255, 255, 0.1); /* Light background for plot */
+    border: 1px solid #ffffff; /* White border */
+    padding: 15px; /* Padding inside the box */
+    border-radius: 10px; /* Rounded corners */
+    margin-top: 20px; /* Space above the plot box */
+    transition: background-color 0.3s ease; /* Smooth transition for hover */
+}
+
+.plot-synopsis:hover {
+    background-color: rgba(255, 255, 255, 0.2); /* Darker on hover */
+}
+
+h2 {
+    margin-top: 30px;
+    font-size: 2em;
+    color: #ffffff; /* White color for section headings */
+    text-shadow: 1px 1px 5px rgba(0, 0, 0, 0.7); /* Subtle shadow for depth */
+}
+
+h3 {
+    color: #ffffff; /* White color for subheadings */
+}
+
+h1:hover {
+    color: #ffcc00; /* Gold color for title on hover */
+}
+
+@media (max-width: 768px) {
+    .landingpage {
+        flex-direction: column;
+    }
+
+    .movieposter {
+        margin-right: 0;
+        margin-bottom: 20px;
+    }
+}
+.cast-container {
+    display: flex;
+    overflow-x: auto; /* Enable horizontal scrolling */
+    padding: 10px 0;
+    scrollbar-width: none;
+}
+.cast-member {
+    min-width: 100px; /* Adjust width for each cast member */
+    margin-right: 15px;
+    text-align: center;
+}
+
+.cast-member img {
+    width: 100px; /* Set width for the actor's image */
+    height: 150px; /* Adjust height for better appearance */
+    border-radius: 5px;
+}
+.crew-container {
+    display: flex;
+    overflow-x: auto; /* Enable horizontal scrolling */
+    padding: 10px 0;
+}
+
+.crew-member {
+    min-width: 100px; /* Adjust width for each crew member */
+    margin-right: 15px;
+    text-align: center;
+}
+
+.crew-member img {
+    width: 100px; /* Set width for the crew member's image */
+    height: 150px; /* Adjust height for better appearance */
+    border-radius: 5px;
+}
+
+.comment {
+    background-color: rgba(255, 255, 255, 0.1); /* Light background for comments */
+    border: 1px solid #444; /* Dark border for depth */
+    border-radius: 8px; /* Rounded corners */
+    padding: 15px; /* Padding inside the comment box */
+    margin-bottom: 15px; /* Space between comments */
+    transition: background-color 0.3s; /* Transition for hover effect */
+}
+
+.comment:hover {
+    background-color: rgba(255, 255, 255, 0.2); /* Darker on hover */
+}
+
+.rating {
+    font-size: 1.2em; /* Size of the stars */
+    color: #FFD700; /* Gold color for stars */
+}
+
+h2, h3 {
+    color: #ffffff; /* White color for section headings */
+    text-shadow: 1px 1px 5px rgba(0, 0, 0, 0.7); /* Subtle shadow for depth */
+}
+
+form {
+    background-color: rgba(255, 255, 255, 0.1); /* Light background for the form */
+    border: 1px solid #444; /* Dark border for the form */
+    border-radius: 8px; /* Rounded corners */
+    padding: 15px; /* Padding inside the form */
+    margin-top: 20px; /* Space above the form */
+}
+
+input[type="text"],
+textarea,
+select {
+    width: calc(100% - 20px); /* Full width with padding */
+    padding: 10px; /* Padding for input fields */
+    margin: 5px 0; /* Space between inputs */
+    border: 1px solid #444; /* Dark border */
+    border-radius: 5px; /* Rounded corners */
+    background-color: #222; /* Dark background for inputs */
+    color: #e6e6e6; /* Light text color */
+}
+
+input[type="submit"] {
+    background-color: #007BFF; /* Button color */
+    color: white; /* Text color */
+    border: none; /* No border */
+    border-radius: 5px; /* Rounded corners */
+    padding: 10px; /* Padding for the button */
+    cursor: pointer; /* Pointer cursor on hover */
+    transition: background-color 0.3s; /* Transition for hover effect */
+}
+
+input[type="submit"]:hover {
+    background-color: #0056b3; /* Darker button color on hover */
+}
