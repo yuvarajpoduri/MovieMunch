@@ -3,20 +3,16 @@ include('db.php');
 
 if (isset($_GET['title'])) {
     $movieTitle = $_GET['title'];
-    $omdbApiKey = '3a38a833';  // Replace with your OMDb API key
-    $tmdbApiKey = 'db530eb75fdd431140fb945e4903aeb4';  // Replace with your TMDb API key
-
-    // Fetch movie details from OMDb (Poster, Title, IMDb Rating, etc.)
+    $omdbApiKey = '3a38a833'; 
+    $tmdbApiKey = 'db530eb75fdd431140fb945e4903aeb4'; 
     $omdbUrl = "http://www.omdbapi.com/?t=" . urlencode($movieTitle) . "&apikey=" . $omdbApiKey;
     $omdbJson = file_get_contents($omdbUrl);
     $movieDetails = json_decode($omdbJson, true);
-
-    // Check if movie is found in OMDb
     if ($movieDetails['Response'] == 'True') {
         $title = $movieDetails['Title'];
         $imdbRating = $movieDetails['imdbRating'];
         $plot = $movieDetails['Plot'];
-        $poster = $movieDetails['Poster']; // Get the poster image
+        $poster = $movieDetails['Poster']; 
         $genre = $movieDetails['Genre'];
         $rated = $movieDetails['Rated'];
         $runtime = $movieDetails['Runtime'];
@@ -28,8 +24,6 @@ if (isset($_GET['title'])) {
         echo "Movie not found.";
         exit;
     }
-
-    // Fetch movie ID from TMDb to get cast and crew details
     $tmdbSearchUrl = "https://api.themoviedb.org/3/search/movie?api_key=" . $tmdbApiKey . "&query=" . urlencode($movieTitle);
     $tmdbSearchJson = file_get_contents($tmdbSearchUrl);
     $tmdbSearchResult = json_decode($tmdbSearchJson, true);
@@ -37,7 +31,6 @@ if (isset($_GET['title'])) {
     if (!empty($tmdbSearchResult['results'])) {
         $tmdbMovieId = $tmdbSearchResult['results'][0]['id'];
 
-        // Fetch the cast and crew details from TMDb
         $tmdbCastUrl = "https://api.themoviedb.org/3/movie/" . $tmdbMovieId . "/credits?api_key=" . $tmdbApiKey;
         $tmdbCastJson = file_get_contents($tmdbCastUrl);
         $tmdbCastResult = json_decode($tmdbCastJson, true);
@@ -49,8 +42,6 @@ if (isset($_GET['title'])) {
     echo "No movie title provided.";
     exit;
 }
-
-// Fetch comments from the database
 $commentSql = "SELECT user_name, comment, created_at, rating FROM comments WHERE movie_title='$movieTitle' ORDER BY created_at DESC";
 $commentsResult = $conn->query($commentSql);
 ?>
@@ -99,7 +90,7 @@ $commentsResult = $conn->query($commentSql);
 <div class="cast-container">
     <?php
     if (!empty($tmdbCastResult['cast'])) {
-        $castCount = min(10, count($tmdbCastResult['cast'])); // Get up to 5 cast members
+        $castCount = min(10, count($tmdbCastResult['cast']));
         for ($i = 0; $i < $castCount; $i++) {
             $actor = $tmdbCastResult['cast'][$i];
             echo "<div class='cast-member'>";
@@ -124,8 +115,7 @@ $commentsResult = $conn->query($commentSql);
                 $crewMembers[] = [
                     'name' => $member['name'],
                     'job' => $member['job'],
-                    'profile_path' => $member['profile_path'] ?? null // Handle case if profile_path is not available
-                ];
+                    'profile_path' => $member['profile_path'] ?? null
             }
         }
 
@@ -149,10 +139,10 @@ $commentsResult = $conn->query($commentSql);
 <?php
 if ($commentsResult->num_rows > 0) {
     while ($row = $commentsResult->fetch_assoc()) {
-        $rating = str_repeat('★', $row['rating']) . str_repeat('☆', 5 - $row['rating']); // Display filled and empty stars
+        $rating = str_repeat('★', $row['rating']) . str_repeat('☆', 5 - $row['rating']);
         echo "<div class='comment'>";
         echo "<p><strong>" . htmlspecialchars($row['user_name']) . "</strong>: " . htmlspecialchars($row['comment']) . " <i>on " . $row['created_at'] . "</i></p>";
-        echo "<div class='rating'>" . $rating . "</div>"; // Show star rating
+        echo "<div class='rating'>" . $rating . "</div>"; 
         echo "</div>";
     }
 } else {
